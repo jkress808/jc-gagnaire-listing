@@ -583,7 +583,7 @@
       </div>
       <div class="contact-line">
         <div><span>P</span><a href="#" contenteditable="true" data-edit="broker-phone">(000) 000-0000</a></div>
-        <div><span>E</span><a href="#" contenteditable="true" data-edit="broker-email">jc@example.com</a></div>
+        <div><span>E</span><a href="mailto:jc@jcgagnaire.com" contenteditable="true" data-edit="broker-email">jc@jcgagnaire.com</a></div>
       </div>
     </div>
   </div>
@@ -596,11 +596,15 @@
     </div>
     <form class="contact-form" id="contactForm">
       <div class="row">
-        <input type="text" placeholder="Name" required />
-        <input type="email" placeholder="Email" required />
+        <input type="text" name="name" placeholder="Name" required />
+        <input type="email" name="email" placeholder="Email" required />
       </div>
-      <input type="tel" placeholder="Phone" />
-      <textarea placeholder="Message" required></textarea>
+      <input type="tel" name="phone" placeholder="Phone" />
+      <textarea name="message" placeholder="Message" required></textarea>
+      <input type="hidden" name="_subject" value="New listing inquiry" />
+      <input type="hidden" name="_template" value="table" />
+      <input type="hidden" name="_captcha" value="false" />
+      <input type="hidden" name="property_address" id="propertyAddressField" value="" />
       <div class="form-msg" id="formMsg"></div>
       <button type="submit" class="btn primary">Send Inquiry</button>
     </form>
@@ -923,10 +927,40 @@
   });
 
   // ---------- Contact form ----------
-  document.getElementById('contactForm').addEventListener('submit', e => {
+  const BROKER_INBOX = 'jc@jcgagnaire.com';
+  document.getElementById('contactForm').addEventListener('submit', async e => {
     e.preventDefault();
-    document.getElementById('formMsg').textContent = 'Thank you — your inquiry has been recorded.';
-    e.target.reset();
+    const form = e.target;
+    const msg = document.getElementById('formMsg');
+    msg.style.color = '';
+    msg.textContent = 'Sending...';
+
+    const addrEl = document.querySelector('[data-edit="hero-address"]');
+    const cityEl = document.querySelector('[data-edit="hero-city"]');
+    const fullAddr = [addrEl && addrEl.textContent.trim(), cityEl && cityEl.textContent.trim()]
+      .filter(Boolean).join(', ');
+    document.getElementById('propertyAddressField').value = fullAddr;
+    const subjEl = form.querySelector('input[name="_subject"]');
+    if (fullAddr) subjEl.value = 'Listing Inquiry — ' + fullAddr;
+
+    try {
+      const resp = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(BROKER_INBOX), {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(form)))
+      });
+      const j = await resp.json().catch(() => ({}));
+      if (resp.ok && (j.success === true || j.success === 'true')) {
+        msg.textContent = 'Thank you — your inquiry has been sent to JC.';
+        form.reset();
+      } else {
+        msg.style.color = '#a33';
+        msg.textContent = 'Could not send. Please email ' + BROKER_INBOX + ' directly.';
+      }
+    } catch (err) {
+      msg.style.color = '#a33';
+      msg.textContent = 'Network error. Please email ' + BROKER_INBOX + ' directly.';
+    }
   });
 })();
 </script>
