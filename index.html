@@ -41,7 +41,6 @@
     "Add a second paragraph if needed. You can also list features, recent updates, or neighborhood highlights here."
   ],
   "floorplanLabels": ["Main Level", "Upper Level", "Lower Level"],
-  "tourUrl": "",
   "map": {
     "lat": 47.6062,
     "lon": -122.3321,
@@ -449,7 +448,6 @@
   <div class="links">
     <a href="#images">Images</a>
     <a href="#floorplans">Floor Plans</a>
-    <a href="#tour">3D Tour</a>
     <a href="#map-section">Map</a>
     <a href="#contact">Contact</a>
   </div>
@@ -498,20 +496,6 @@
     <h2>Floor Plans</h2>
   </div>
   <div class="floorplans" id="floorplanGrid"></div>
-</section>
-
-<section class="block" id="tour">
-  <div class="section-head">
-    <div class="divider"></div>
-    <div class="eyebrow">Walkthrough</div>
-    <h2>3D Tour</h2>
-  </div>
-  <div class="tour-frame" id="tourFrame">
-    <div class="placeholder">
-      <div class="icon">&#9711;</div>
-      <p><strong>Coming Soon</strong></p>
-    </div>
-  </div>
 </section>
 
 <section class="block full" id="map-section">
@@ -714,17 +698,6 @@
       floorplanGrid.appendChild(slot);
     });
   });
-
-  // ---------- 3D Tour ----------
-  if (data.tourUrl) {
-    const tf = document.getElementById('tourFrame');
-    tf.innerHTML = '';
-    const ifr = document.createElement('iframe');
-    ifr.src = data.tourUrl;
-    ifr.allow = 'fullscreen; xr-spatial-tracking';
-    ifr.allowFullscreen = true;
-    tf.appendChild(ifr);
-  }
 
   // ---------- Map ----------
   const m = data.map || {};
